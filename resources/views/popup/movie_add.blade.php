@@ -72,6 +72,4 @@
       preview.style.display = 'none';
     }
   });
-
-  console.log(file);
 </script>

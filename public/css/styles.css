@@ -283,6 +283,11 @@ select {
   margin-left: 12px;
 }
 
+.conf-step__button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .conf-step__buttons {
   display: flex;
   flex-wrap: wrap;

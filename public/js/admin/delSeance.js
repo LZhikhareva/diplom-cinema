@@ -8,16 +8,17 @@ export default function delSeance(hallsData, moviesData, seancesData) {
             const movie = moviesData.find(movie => movie.id == getSeanceId(i, hallsData, seancesData).movie_id);
             const formSeance = document.getElementById('delete_seance');
             formSeance.querySelector('span').textContent = movie.title;
-            formSeance.action = '/admin/delete-seance/' +  getSeanceId(i, hallsData, seancesData).id;
+            formSeance.action = '/admin/delete-seance/' + getSeanceId(i, hallsData, seancesData).id;
             document.getElementById('delShowPopup').classList.add('active');
             formSeance.onsubmit = (e) => {
                 e.preventDefault();
                 let delEl = seancesData.findIndex(item => item.id == getSeanceId(i, hallsData, seancesData).id);
                 seancesData.splice(delEl, 1);
                 viewSeances(hallsData, moviesData, seancesData);
+                if (window.updateButtonsState) window.updateButtonsState();
                 document.getElementById('delShowPopup').classList.remove('active');
             }
-            
+
         }
     }
 }

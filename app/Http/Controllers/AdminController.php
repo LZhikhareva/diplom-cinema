@@ -57,4 +57,30 @@ class AdminController extends Controller
         Movie::destroy($id);
         return redirect('admin/index');
     }
+
+    public function cancelSection($section)
+    {
+        switch ($section) {
+            case 'hall':
+                $hall = Hall::first();
+                return response()->json([
+                    'rows' => $hall->rows,
+                    'places' => $hall->places,
+                ]);
+
+            case 'seance':
+                $seances = Session::with('movie', 'hall')->get();
+                $html = view('admin.partials.seances', compact('seances'))->render();
+                return response()->json(['html' => $html]);
+
+            case 'price':
+                $hall = Hall::first();
+                return response()->json([
+                    'standart_price' => $hall->standart_price,
+                    'vip_price' => $hall->vip_price,
+                ]);
+        }
+
+        return response()->json(['error' => 'Неизвестная секция'], 404);
+    }
 }

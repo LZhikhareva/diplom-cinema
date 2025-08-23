@@ -21,6 +21,7 @@
 
   <input class="data-seance" type="hidden" value="{{ json_encode($seance) }}" />
   <input class="data-seats" type="hidden" value="{{ json_encode($seats) }}" />
+  <input type="hidden" class="data-seats" value='@json($hall->seats)'>
 
   <main>
     <section class="buying">

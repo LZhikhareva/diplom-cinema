@@ -22,49 +22,17 @@
   <input class="data-halls" type="hidden" value="{{ json_encode($halls) }}" />
   <input class="data-movies" type="hidden" value="{{ json_encode($movies) }}" />
   <input class="data-seances" type="hidden" value="{{ json_encode($seances) }}" />
+  <input class="data-sales" type="hidden" value='@json(["is_open" => (bool) $isOpen])' />
 
   <nav class="page-nav">
 
   </nav>
 
-  <main>
-    @foreach ($movies as $movie)
-    <section class="movie">
-      <div class="movie__info">
-      <div class="movie__poster">
-        <img class="movie__poster-image" alt="Постер"
-        src="{{ $movie->poster_path ? asset(path: 'storage/' . $movie->poster_path) : asset('i/poster.png') }}">
-      </div>
-      <div class="movie__description">
-        <h2 class="movie__title">{{ $movie->title }}</h2>
-        <p class="movie__synopsis">{{ $movie->description }}</p>
-        <p class="movie__data">
-        <span class="movie__data-duration">{{ $movie->duration }}</span>
-        <span class="movie__data-origin">{{ $movie->country }}</span>
-        </p>
-      </div>
-      </div>
+  <main id="movies-container">
 
-      @foreach ($halls as $hall)
-      <div class="movie-seances__hall">
-      <h3 class="movie-seances__hall-title">{{ $hall->name }}</h3>
-      <ul class="movie-seances__list">
-      @foreach ($movie->sessions as $seance)
-      @if ($seance->hall_id == $hall->id)
-      <li class="movie-seances__time-block"><a class="movie-seances__time"
-      href="{{ route('client-hall', $hall->id) }}">{{ $seance->start}}</a></li>
-      @endif
-      @endforeach
-      </ul>
-      </div>
-    @endforeach
-    </section>
-  @endforeach
   </main>
 
   <script type="module" src="/js/client/client.js"></script>
-  <script type="module" src="/js/client/calendar.js"></script>
-  <script type="module" src="/js/client/sortSeances.js"></script>
 </body>
 
 </html>

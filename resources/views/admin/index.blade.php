@@ -66,8 +66,8 @@
 
           <ul class="conf-step__selectors-box">
             @foreach ($halls as $hall)
-        <li><input type="radio" class="conf-step__radio" name="chairs-hall" value="{{ $hall->id}}" checked><span
-          class="conf-step__selector">{{ $hall->name }}</span></li>
+        <li id="{{ $hall->id }}"><input type="radio" class="conf-step__radio" name="chairs-hall"
+          value="{{ $hall->id}}"><span class="conf-step__selector">{{ $hall->name }}</span></li>
       @endforeach
           </ul>
 
@@ -99,8 +99,9 @@
             </div>
           </div>
 
-          <fieldset from="hall_update" class="conf-step__buttons text-center">
-            <button class="conf-step__button conf-step__button-regular cancel">Отмена</button>
+          <fieldset form="hall_update" class="conf-step__buttons text-center">
+            <button type="button" class="conf-step__button conf-step__button-regular cancel"
+              data-section="hall">Отмена</button>
             <input type="submit" value="Сохранить" class="conf-step__button conf-step__button-accent">
           </fieldset>
         </div>
@@ -133,8 +134,9 @@
             за <span class="conf-step__chair conf-step__chair_vip"></span> VIP кресла
           </div>
 
-          <fieldset from="hall_update" class="conf-step__buttons text-center">
-            <button class="conf-step__button conf-step__button-regular cancel">Отмена</button>
+          <fieldset form="hall_update" class="conf-step__buttons text-center">
+            <button type="button" class="conf-step__button conf-step__button-regular cancel"
+              data-section="price">Отмена</button>
             <input type="submit" value="Сохранить" class="conf-step__button conf-step__button-accent">
           </fieldset>
         </div>
@@ -153,15 +155,97 @@
         <div class="conf-step__movies">
         </div>
 
-        <form action="/api/seance" id="seance_update" method="post">
+        <form action="/admin/seances" id="seance_update" method="post">
           @csrf
           <div class="conf-step__seances">
           </div>
-          <fieldset class="conf-step__buttons text-center" form="seance_update">
-            <button class="conf-step__button conf-step__button-regular cancel">Отмена</button>
-            <input type="submit" value="Сохранить" class="conf-step__button conf-step__button-accent">
+          <fieldset class="conf-step__buttons text-center">
+            <button type="button" class="conf-step__button conf-step__button-regular cancel"
+              data-section="seance">Отмена</button>
+            <input type="submit" form="seance_update" value="Сохранить"
+              class="conf-step__button conf-step__button-accent">
           </fieldset>
         </form>
+        <script>
+          (function () {
+            function initSeanceSubmit() {
+              const form = document.getElementById('seance_update');
+              if (!form) return;
+
+              form.setAttribute('onsubmit', 'return false;');
+
+              form.addEventListener('submit', handleSeancesSubmit, { once: false });
+
+              const submitter = form.querySelector('input[type="submit"], button[type="submit"]');
+              if (submitter) {
+                submitter.addEventListener('click', function (e) {
+                  e.preventDefault();
+                  form.requestSubmit = form.requestSubmit || function () { handleSeancesSubmit(new Event('submit', { cancelable: true })); };
+                  handleSeancesSubmit(e);
+                });
+              }
+            }
+
+            async function handleSeancesSubmit(e) {
+              if (e && typeof e.preventDefault === 'function') e.preventDefault();
+
+              try {
+                const seancesData = (window.seancesData && Array.isArray(window.seancesData))
+                  ? window.seancesData
+                  : collectSeancesFromDOM();
+
+                seancesData.forEach(s => { if ('movie' in s) delete s.movie; });
+
+                const token = (document.querySelector('meta[name="csrf-token"]') || {}).content
+                  || document.querySelector('input[name="_token"]')?.value
+                  || '';
+
+                const res = await fetch('/admin/seances', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                    ...(token ? { 'X-CSRF-TOKEN': token } : {})
+                  },
+                  body: JSON.stringify(seancesData),
+                  credentials: 'same-origin'
+                });
+
+                if (!res.ok) {
+                  const txt = await res.text().catch(() => '');
+                  console.error('Seances save failed', res.status, txt);
+                  alert('Ошибка сохранения сеансов: ' + res.status);
+                  return;
+                }
+
+                let payload = null;
+                const ct = res.headers.get('content-type') || '';
+                if (ct.includes('application/json')) {
+                  payload = await res.json().catch(() => null);
+                }
+
+                console.log('Seances saved OK', payload);
+                alert('Сохранено');
+              } catch (err) {
+                console.error('Seances save exception', err);
+                alert('Ошибка сохранения (исключение в JS). Открой консоль для деталей.');
+              }
+            }
+
+            function collectSeancesFromDOM() {
+              const el = document.querySelector('.data-seances');
+              if (el && el.value) {
+                try { return JSON.parse(el.value); } catch { }
+              }
+              return [];
+            }
+
+            if (document.readyState === 'loading') {
+              document.addEventListener('DOMContentLoaded', initSeanceSubmit);
+            } else {
+              initSeanceSubmit();
+            }
+          })();
+        </script>
       </div>
     </section>
 
@@ -189,6 +273,8 @@
   <script type="module" src="/js/admin/inputError.js"></script>
   <script type="module" src="/js/admin/sortSeances.js"></script>
   <script type="module" src="/js/admin/timeToMinutes.js"></script>
+  <script type="module" src="/js/admin/diffState.js"></script>
+  <script type="module" src="/js/admin/cancel.js"></script>
 </body>
 
 </html>

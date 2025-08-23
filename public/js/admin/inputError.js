@@ -40,6 +40,9 @@ export default function inputError(moviesData, hallsData) {
         if (!Number.isInteger(value) || value <= 0 || value > 300) {
             error = true;
             typeError = "Неверно указана продолжительность фильма";
+        } else {
+            error = false;
+            typeError = "";
         }
     })
 

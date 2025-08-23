@@ -3,10 +3,17 @@ const seance = JSON.parse(seanceTable.value);
 const seatsTable = document.querySelector('.data-seats');
 let seats = [];
 
-if (seance.seance_seats.length == 0) {
+if (!seance.seance_seats || seance.seance_seats.length === 0) {
     seats = JSON.parse(seatsTable.value);
 } else {
-    seats = JSON.parse(seance.seance_seats);
+    try {
+        seats = typeof seance.seance_seats === "string"
+            ? JSON.parse(seance.seance_seats)
+            : seance.seance_seats;
+    } catch (e) {
+        console.error("Ошибка парсинга мест:", e);
+        seats = JSON.parse(seatsTable.value);
+    }
 }
 
 document.querySelector('.buying__info-title').textContent = seance.movie.title;

@@ -13,7 +13,7 @@ class SeanceController extends Controller
     {
         $seances = Session::all();
         Session::query()->delete();
-        $seancesIn = $request->json();
+        $seancesIn = $request->json()->all();
         foreach ($seancesIn as $seanceIn) {
             $s = 0;
             foreach ($seances as $seance) {

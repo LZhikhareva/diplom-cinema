@@ -63,3 +63,4 @@ Route::name('user.')->group(function () {
 });
 
 Route::get('/login', [LoginController::class, 'adminLogin'])->name('admin-login');
+Route::get('/admin/cancel/{section}', [AdminController::class, 'cancelSection']);

@@ -15,21 +15,23 @@ class ClientController extends Controller
         $halls = Hall::query()->where(['is_open' => true])->get();
         $movies = Movie::with('sessions')->get();
         $seances = Session::all();
+        $isOpen = $halls->isNotEmpty();
 
         return view('client.index', [
             'halls' => $halls,
             'movies' => $movies,
             'seances' => $seances,
+            'isOpen' => $isOpen,
         ]);
     }
 
     public function hall(int $id)
     {
-        $seance = Session::with(['movie', 'hall'])->get()->find($id);
+        $seance = Session::with(['movie', 'hall'])->findOrFail($id);
         $seats = Seat::query()->where(['hall_id' => $seance->hall_id])->get();
-        $hall = Hall::query()->find($seance->movie_id);
-        $movie = Movie::query()->find($seance->hall_id);
-        return view('client.hall', ['seance' => $seance, 'seats' => $seats, 'hall' => $hall, 'movie' => $movie]);
+        $hall = $seance->hall;
+        $movie = $seance->movie;
+        return view('client.hall', compact('seance', 'seats', 'hall', 'movie'));
     }
 
     public function payment(Request $request, int $id)
